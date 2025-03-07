@@ -1,5 +1,5 @@
 import unittest
-from htmlnode import HtmlNode, LeafNode
+from htmlnode import HtmlNode, LeafNode, ParentNode
 
 class TestHtmlNode(unittest.TestCase):
     def test_props_to_html(self):
@@ -35,6 +35,56 @@ class TestLeafNode(unittest.TestCase):
         node = LeafNode("p", None)
         with self.assertRaises(ValueError):
             node.to_html()
+
+class TestParentNode(unittest.TestCase):
+    def test_to_html_with_children(self):
+        child_node = LeafNode("span", "child")
+        parent_node = ParentNode("div", [child_node])
+        self.assertEqual(parent_node.to_html(), "<div><span>child</span></div>")
+
+    def test_to_html_with_grandchildren(self):
+        grandchild_node = LeafNode("b", "grandchild")
+        child_node = ParentNode("span", [grandchild_node])
+        parent_node = ParentNode("div", [child_node])
+        self.assertEqual(
+            parent_node.to_html(),
+            "<div><span><b>grandchild</b></span></div>",
+        )
+
+    def test_to_html_with_more_children_and_nested_grandchildren(self):
+        child_node_a = LeafNode("a", "Bootdev site", {"href" : "boot.dev"})
+        child_node_txt = LeafNode(None, " is where I'm learning ")
+        child_node_i = LeafNode("i", "this stuff")
+        child_node_span = ParentNode("span", [child_node_txt, child_node_i], {"style" : "color:yellow"})
+        child_node_p = ParentNode("p", [child_node_a, child_node_span])
+        parent_node = ParentNode("div", [child_node_p])
+        self.assertEqual(
+            parent_node.to_html(),
+            "<div><p><a href=\"boot.dev\">Bootdev site</a><span style=\"color:yellow\"> is where I'm learning <i>this stuff</i></span></p></div>"
+        )
+    
+    def test_to_html_with_no_tag(self):
+        parent_node = ParentNode(None, [LeafNode(None, "ciao")])
+        with self.assertRaises(ValueError):
+            parent_node.to_html()
+
+    def test_to_html_with_no_children(self):
+        parent_node = ParentNode("div", None)
+        with self.assertRaises(ValueError):
+            parent_node.to_html()
+
+    def test_to_html_different_error_messages(self):
+        parent_node = ParentNode(None, [LeafNode(None, "ciao")])
+        with self.assertRaises(ValueError) as context:
+            parent_node.to_html()
+        no_tag_message = str(context.exception)
+        parent_node = ParentNode("div", None)
+        with self.assertRaises(ValueError) as context:
+            parent_node.to_html()
+        no_children_message = str(context.exception)
+        self.assertNotEqual(no_tag_message, no_children_message)
+
+
 
 
 
