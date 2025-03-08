@@ -84,10 +84,5 @@ class TestParentNode(unittest.TestCase):
         no_children_message = str(context.exception)
         self.assertNotEqual(no_tag_message, no_children_message)
 
-
-
-
-
-
 if __name__ == "__main__":
     unittest.main()
