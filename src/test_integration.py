@@ -48,6 +48,32 @@ class TestNodeConversion(unittest.TestCase):
         self.assertDictEqual(html_node.props, {"src" : "url/of/image.jpg", "alt" : "This is an image node"})
         self.assertEqual(html_node.to_html(), "<img src=\"url/of/image.jpg\" alt=\"This is an image node\"></img>")
 
+class TestSplitNodeDelimiter(unittest.TestCase):
+    def test_bold(self):
+        node = TextNode("This is text with a **bold** word", TextType.TEXT)
+        new_nodes = split_nodes_delimiter([node], "**", TextType.BOLD)
+        self.assertEqual(new_nodes, [TextNode("This is text with a ", TextType.TEXT), TextNode("bold", TextType.BOLD),TextNode(" word", TextType.TEXT),])
+
+    def test_italic(self):
+        node = TextNode("This is text with an _italic_ word", TextType.TEXT)
+        new_nodes = split_nodes_delimiter([node], "_", TextType.ITALIC)
+        self.assertEqual(new_nodes, [TextNode("This is text with an ", TextType.TEXT), TextNode("italic", TextType.ITALIC),TextNode(" word", TextType.TEXT),])
+
+    def test_code(self):
+        node = TextNode("This is text with a `code block` word", TextType.TEXT)
+        new_nodes = split_nodes_delimiter([node], "`", TextType.CODE)
+        self.assertEqual(new_nodes, [TextNode("This is text with a ", TextType.TEXT), TextNode("code block", TextType.CODE),TextNode(" word", TextType.TEXT),])
+
+    def test_no_matching_delimiters(self):
+        node = TextNode("This is song with no words, nobody can sing or miss it", TextType.TEXT)
+        new_nodes = split_nodes_delimiter([node], "`", TextType.CODE)
+        self.assertEqual(new_nodes, [TextNode("This is song with no words, nobody can sing or miss it", TextType.TEXT)])
+
+    def test_mismatched_delimiter(self):
+        node = TextNode("This_ is text with an _italic_ word", TextType.TEXT)
+        with self.assertRaises(Exception):
+            new_nodes = split_nodes_delimiter([node], "_", TextType.ITALIC)
+
 
 if __name__ == "__main__":
     unittest.main()
