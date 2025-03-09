@@ -64,6 +64,22 @@ class TestSplitNodeDelimiter(unittest.TestCase):
         new_nodes = split_nodes_delimiter([node], "`", TextType.CODE)
         self.assertEqual(new_nodes, [TextNode("This is text with a ", TextType.TEXT), TextNode("code block", TextType.CODE),TextNode(" word", TextType.TEXT),])
 
+    def test_multiword_section(self):
+        node = TextNode("This is text with a **bold word**", TextType.TEXT)
+        new_nodes = split_nodes_delimiter([node], "**", TextType.BOLD)
+        self.assertEqual(new_nodes, [TextNode("This is text with a ", TextType.TEXT), TextNode("bold word", TextType.BOLD)])
+
+    def test_multiple_sections_same_delimiter(self):
+        node = TextNode("This is text with _more_ italic _words_", TextType.TEXT)
+        new_nodes = split_nodes_delimiter([node], "_", TextType.ITALIC)
+        self.assertEqual(new_nodes, [TextNode("This is text with ", TextType.TEXT), TextNode("more", TextType.ITALIC),TextNode(" italic ", TextType.TEXT),TextNode("words", TextType.ITALIC)])
+
+    def test_multiple_sections_different_delimiters(self):
+        node = TextNode("This is text with an _italic_ and a **bold** word", TextType.TEXT)
+        new_nodes = split_nodes_delimiter([node], "_", TextType.ITALIC)
+        new_nodes = split_nodes_delimiter(new_nodes, "**", TextType.BOLD)
+        self.assertEqual(new_nodes, [TextNode("This is text with an ", TextType.TEXT), TextNode("italic", TextType.ITALIC),TextNode(" and a ", TextType.TEXT),TextNode("bold",TextType.BOLD), TextNode(" word",TextType.TEXT)])
+
     def test_no_matching_delimiters(self):
         node = TextNode("This is song with no words, nobody can sing or miss it", TextType.TEXT)
         new_nodes = split_nodes_delimiter([node], "`", TextType.CODE)
