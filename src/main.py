@@ -4,9 +4,9 @@ from md_html_utils import *
 
 node = TextNode(
     #"This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)",
-    "This is a text ebbasta",
+    "This is **text** with an _italic_ word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)",
     TextType.TEXT,
 )
-new_nodes = split_nodes_link([node])
+new_nodes = text_to_textnodes([node])
 
-print(new_nodes)
+print(*new_nodes, sep="\n")

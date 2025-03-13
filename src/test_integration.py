@@ -238,6 +238,43 @@ class TestSplitNodesLink(unittest.TestCase):
         node = TextNode("", TextType.TEXT)
         self.assertListEqual(split_nodes_link([node]), [])
     
+class TestTextToTextNodes(unittest.TestCase):
+    def test_text_to_textnodes(self):
+        node = TextNode(
+            "This is **text** with an _italic_ word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)",
+            TextType.TEXT
+        )
+        expected_result = [
+            TextNode("This is ", TextType.TEXT),
+            TextNode("text", TextType.BOLD),
+            TextNode(" with an ", TextType.TEXT),
+            TextNode("italic", TextType.ITALIC),
+            TextNode(" word and a ", TextType.TEXT),
+            TextNode("code block", TextType.CODE),
+            TextNode(" and an ", TextType.TEXT),
+            TextNode("obi wan image", TextType.IMAGE, "https://i.imgur.com/fJRm4Vk.jpeg"),
+            TextNode(" and a ", TextType.TEXT),
+            TextNode("link", TextType.LINK, "https://boot.dev"),
+        ]
+        self.assertListEqual(text_to_textnodes([node]), expected_result)
+    
+    def test_text_to_textnodes_text_only(self):
+        node = TextNode("This is only text", TextType.TEXT)
+        expected_result = [TextNode("This is only text", TextType.TEXT)]
+        self.assertListEqual(text_to_textnodes([node]), expected_result)
+    
+    def test_text_to_textnodes_link_only(self):
+        node = TextNode("[Just a link](https://boot.dev)", TextType.TEXT)
+        expected_result = [TextNode("Just a link", TextType.LINK, "https://boot.dev")]
+        self.assertListEqual(text_to_textnodes([node]), expected_result)
+    
+    def test_text_to_textnodes_image_only(self):
+        node = TextNode("![Just an image](https://i.imgur.com/fJRm4Vk.jpeg)", TextType.TEXT)
+        expected_result = [TextNode("Just an image", TextType.IMAGE, "https://i.imgur.com/fJRm4Vk.jpeg")]
+        self.assertListEqual(text_to_textnodes([node]), expected_result)
+
+    def test_text_to_textnodes_no_nodes(self):
+        self.assertListEqual(text_to_textnodes([]), [])
 
 
 
