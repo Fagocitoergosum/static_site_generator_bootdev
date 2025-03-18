@@ -323,7 +323,45 @@ This is the same paragraph on a new line
         md = ""
         self.assertEqual(markdown_to_blocks(md), [])
 
+class TestBlockToBlockType(unittest.TestCase):
+    def test_block_to_block_type_heading(self):
+        block = "# This is a heading"
+        self.assertEqual(block_to_block_type(block), BlockType.HEADING)
+    
+    def test_block_to_block_type_code(self):
+        block = """```this.is()
+        some
+        code```"""
+        self.assertEqual(block_to_block_type(block), BlockType.CODE)
+    
+    def test_block_to_block_type_quote(self):
+        block = """>This is
+        >a greentext
+        >also known as
+        >a quote"""
+        self.assertEqual(block_to_block_type(block), BlockType.QUOTE)
+    
+    def test_block_to_block_type_unordered_list(self):
+        block = """- This is the first item in an unordered list
+        - This is the second item
+        - And this is the third"""
+        self.assertEqual(block_to_block_type(block), BlockType.UNORDERED_LIST)
+    
+    def test_block_to_block_type_ordered_list(self):
+        block = """1. This is the first item in an ordered list
+        2. This is the second item
+        3. And this is the third"""
+        self.assertEqual(block_to_block_type(block), BlockType.ORDERED_LIST)
+    
+    def test_block_to_block_type_paragraph(self):
+        block = "No symbols at the start, must be a paragraph"
+        self.assertEqual(block_to_block_type(block), BlockType.PARAGRAPH)
 
+    def test_block_to_block_type_bad_format(self):
+        block = """- This seems an unordered list
+        -but the second line is malformed
+        3. and the third even worse"""
+        self.assertEqual(block_to_block_type(block), BlockType.PARAGRAPH)
 
 
 if __name__ == "__main__":

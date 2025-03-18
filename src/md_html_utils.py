@@ -1,6 +1,15 @@
 from textnode import TextNode, TextType
 from htmlnode import HtmlNode, LeafNode, ParentNode
+from enum import Enum
 import re
+
+class BlockType(Enum):
+    PARAGRAPH = "paragraph"
+    HEADING = "heading"
+    CODE = "code"
+    QUOTE = "quote"
+    UNORDERED_LIST = "unordered_list"
+    ORDERED_LIST = "ordered_list"
 
 def text_node_to_html_node(text_node):
     match text_node.text_type:
@@ -102,3 +111,21 @@ def markdown_to_blocks(markdown):
                 )
             )
         )
+
+def block_to_block_type(block):
+    heading_regex = re.compile(r"#{1,6} .*?", re.DOTALL)
+    if heading_regex.match(block):
+        return BlockType.HEADING
+    code_regex = re.compile(r"^```.*```\Z", re.DOTALL)#matcha inizio stringa, tutto ciò che è racchiuso tra i ``` e fine stringa
+    if code_regex.match(block):
+        return BlockType.CODE
+    quote_regex = re.compile(r"(?:^>.*)+\Z", re.MULTILINE|re.DOTALL)#(?:...) è un non capturing group, matcha ciò che c'è tra le parentesi ma non permette di acedervi
+    if quote_regex.match(block):
+        return BlockType.QUOTE
+    unordered_list_regex = re.compile(r"(?:^- .*$)+", re.MULTILINE|re.DOTALL)#re.compile() accetta solo 1 parametro per le flag, per usarne più di una dobbiamo fare un or bitwise
+    if unordered_list_regex.match(block):
+        return BlockType.UNORDERED_LIST
+    ordered_list_regex = re.compile(r"(?:^\d\. .*)+\Z", re.MULTILINE|re.DOTALL)
+    if ordered_list_regex.match(block):
+        return BlockType.ORDERED_LIST
+    return BlockType.PARAGRAPH
