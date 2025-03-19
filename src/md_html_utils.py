@@ -122,10 +122,10 @@ def block_to_block_type(block):
     quote_regex = re.compile(r"(?:^>.*)+\Z", re.MULTILINE|re.DOTALL)#(?:...) è un non capturing group, matcha ciò che c'è tra le parentesi ma non permette di acedervi
     if quote_regex.match(block):
         return BlockType.QUOTE
-    unordered_list_regex = re.compile(r"(?:^- .*$)+", re.MULTILINE|re.DOTALL)#re.compile() accetta solo 1 parametro per le flag, per usarne più di una dobbiamo fare un or bitwise
-    if unordered_list_regex.match(block):
+    unordered_list_regex = re.compile(r"^- .*")
+    if all(map(lambda str: unordered_list_regex.match(str) ,block.split("\n"))):
         return BlockType.UNORDERED_LIST
-    ordered_list_regex = re.compile(r"(?:^\d\. .*)+\Z", re.MULTILINE|re.DOTALL)
-    if ordered_list_regex.match(block):
+    ordered_list_regex = re.compile(r"^\d\. .*")
+    if all(map(lambda str: ordered_list_regex.match(str) ,block.split("\n"))):
         return BlockType.ORDERED_LIST
     return BlockType.PARAGRAPH

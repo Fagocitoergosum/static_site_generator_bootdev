@@ -330,27 +330,27 @@ class TestBlockToBlockType(unittest.TestCase):
     
     def test_block_to_block_type_code(self):
         block = """```this.is()
-        some
-        code```"""
+some
+code```"""
         self.assertEqual(block_to_block_type(block), BlockType.CODE)
     
     def test_block_to_block_type_quote(self):
         block = """>This is
-        >a greentext
-        >also known as
-        >a quote"""
+>a greentext
+>also known as
+>a quote"""
         self.assertEqual(block_to_block_type(block), BlockType.QUOTE)
     
     def test_block_to_block_type_unordered_list(self):
         block = """- This is the first item in an unordered list
-        - This is the second item
-        - And this is the third"""
+- This is the second item
+- And this is the third"""
         self.assertEqual(block_to_block_type(block), BlockType.UNORDERED_LIST)
     
     def test_block_to_block_type_ordered_list(self):
         block = """1. This is the first item in an ordered list
-        2. This is the second item
-        3. And this is the third"""
+2. This is the second item
+3. And this is the third"""
         self.assertEqual(block_to_block_type(block), BlockType.ORDERED_LIST)
     
     def test_block_to_block_type_paragraph(self):
@@ -359,8 +359,14 @@ class TestBlockToBlockType(unittest.TestCase):
 
     def test_block_to_block_type_bad_format(self):
         block = """- This seems an unordered list
-        -but the second line is malformed
-        3. and the third even worse"""
+-but the second line is malformed
+3. and the third even worse"""
+        self.assertEqual(block_to_block_type(block), BlockType.PARAGRAPH)
+    
+    def test_block_to_block_type_bad_format_ordered(self):
+        block = """2. This seems an ordered list
+3.but the second line is malformed
+- and the third even worse"""
         self.assertEqual(block_to_block_type(block), BlockType.PARAGRAPH)
 
 
