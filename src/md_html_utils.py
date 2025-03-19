@@ -94,6 +94,7 @@ def split_nodes_link(old_nodes):
             new_nodes.append(node)
     return new_nodes
 
+#anche se si chiama text_to_textnodes il parametro text è una lista con un unico textnode con text_type TEXT
 def text_to_textnodes(text):
     nodes = split_nodes_delimiter(text, "**", TextType.BOLD)
     nodes = split_nodes_delimiter(nodes, "_", TextType.ITALIC)
@@ -129,3 +130,42 @@ def block_to_block_type(block):
     if all(map(lambda str: ordered_list_regex.match(str) ,block.split("\n"))):
         return BlockType.ORDERED_LIST
     return BlockType.PARAGRAPH
+
+def count_heading_number(heading_block):
+    count = 0
+    i = 0
+    while heading_block[i] == "#":
+        count += 1
+        i += 1
+    return count
+
+def text_to_children(text):
+    text_nodes = text_to_textnodes([TextNode(text.replace("\n"," "), TextType.TEXT)])
+    html_nodes = list(map(text_node_to_html_node, text_nodes))
+    return html_nodes
+
+def markdown_to_html_node(markdown):
+    print(f"MD:\n{markdown}")
+    blocks = markdown_to_blocks(markdown)
+    print(f"Blocks:\n{blocks}")
+    parent_div = ParentNode("div", [])
+    for block in blocks:
+        block_type = block_to_block_type(block)
+        match block_type:
+            case BlockType.HEADING:
+                new_node = ParentNode(f"h{count_heading_number(block)}", text_to_children(block.lstrip("# ")))
+            case BlockType.CODE:
+                new_node = ParentNode("pre", [text_node_to_html_node(TextNode(block.strip("`\n"),TextType.CODE))])
+            case BlockType.QUOTE:
+                lines = " ".join(map(lambda line: line.lstrip(">"), block.split("\n")))
+                new_node = ParentNode("blockquote", text_to_children(lines))
+            case BlockType.UNORDERED_LIST:
+                lines = list(map(lambda line: line.lstrip("- "), block.split("\n")))
+                new_node = ParentNode("ul", list(map(lambda line: ParentNode("li", text_to_children(line)), lines)))
+            case BlockType.ORDERED_LIST:
+                lines = list(map(lambda line: line.lstrip("0123456789. "), block.split("\n")))
+                new_node = ParentNode("ol", list(map(lambda line: ParentNode("li", text_to_children(line)), lines)))
+            case BlockType.PARAGRAPH:
+                new_node = ParentNode("p", text_to_children(block))
+        parent_div.children.append(new_node)
+    return parent_div

@@ -364,11 +364,97 @@ code```"""
         self.assertEqual(block_to_block_type(block), BlockType.PARAGRAPH)
     
     def test_block_to_block_type_bad_format_ordered(self):
-        block = """2. This seems an ordered list
+        block = """1. This seems an ordered list
 3.but the second line is malformed
 - and the third even worse"""
         self.assertEqual(block_to_block_type(block), BlockType.PARAGRAPH)
 
+class TestMarkdownToHtmlNode(unittest.TestCase):
+    def test_paragraphs(self):
+        md = """
+This is **bolded** paragraph
+text in a p
+tag here
+
+This is another paragraph with _italic_ text and `code` here
+
+"""
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><p>This is <b>bolded</b> paragraph text in a p tag here</p><p>This is another paragraph with <i>italic</i> text and <code>code</code> here</p></div>",
+        )
+
+    def test_codeblock(self):
+        md = """
+```
+This is text that _should_ remain
+the **same** even with inline stuff
+```
+"""
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><pre><code>This is text that _should_ remain\nthe **same** even with inline stuff</code></pre></div>",
+        )
+    
+    def test_heading(self):
+        md ="""
+# This is a h1 heading
+
+## This is a h2 heading
+
+And this is just a paragraph
+"""
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><h1>This is a h1 heading</h1><h2>This is a h2 heading</h2><p>And this is just a paragraph</p></div>"
+        )
+    
+    def test_blockquote(self):
+        md = """
+>This is a
+>fucking stupid retarded
+>greentext, I meant, quote
+"""
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><blockquote>This is a fucking stupid retarded greentext, I meant, quote</blockquote></div>"
+        )
+    
+    def test_unordered_list(self):
+        md = """
+- This is
+- obviously,
+- an unordered list
+- with an _italic_ word
+"""
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><ul><li>This is</li><li>obviously,</li><li>an unordered list</li><li>with an <i>italic</i> word</li></ul></div>"
+        )
+
+    def test_ordered_list(self):
+        md = """
+1. This is
+3. an ordered list
+2. which will be ordered in html
+4. even if **now** it isn't
+"""
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><ol><li>This is</li><li>an ordered list</li><li>which will be ordered in html</li><li>even if <b>now</b> it isn't</li></ol></div>"
+        )
 
 if __name__ == "__main__":
     unittest.main()
