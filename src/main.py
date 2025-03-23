@@ -19,4 +19,4 @@ print(block_to_block_type(blocks[2]))
 '''
 #print(os.listdir("."))
 copy_static_public("static", "public")
-generate_page("content/index.md", "template.html", "public/index.html")
+generate_pages_recursive("content", "template.html", "public")

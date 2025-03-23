@@ -273,6 +273,11 @@ class TestTextToTextNodes(unittest.TestCase):
         expected_result = [TextNode("Just an image", TextType.IMAGE, "https://i.imgur.com/fJRm4Vk.jpeg")]
         self.assertListEqual(text_to_textnodes([node]), expected_result)
 
+    def test_text_to_textnodes_code_only(self):
+        node = TextNode("`just a code inline`", TextType.TEXT)
+        expected_result = [TextNode("just a code inline", TextType.CODE)]
+        self.assertListEqual(text_to_textnodes([node]), expected_result)
+
     def test_text_to_textnodes_no_nodes(self):
         self.assertListEqual(text_to_textnodes([]), [])
 

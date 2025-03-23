@@ -39,10 +39,10 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
             for new_text in new_nodes_texts:
                 if new_text != "":
                     new_nodes.append(TextNode(new_text, new_node_text_type))
-                    if new_node_text_type == TextType.TEXT:
-                        new_node_text_type = text_type
-                    else:
-                        new_node_text_type = TextType.TEXT
+                if new_node_text_type == TextType.TEXT:
+                    new_node_text_type = text_type
+                else:
+                    new_node_text_type = TextType.TEXT
         else:
             new_nodes.append(node)
     return new_nodes
@@ -145,9 +145,7 @@ def text_to_children(text):
     return html_nodes
 
 def markdown_to_html_node(markdown):
-    print(f"MD:\n{markdown}")
     blocks = markdown_to_blocks(markdown)
-    print(f"Blocks:\n{blocks}")
     parent_div = ParentNode("div", [])
     for block in blocks:
         block_type = block_to_block_type(block)
